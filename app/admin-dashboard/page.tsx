@@ -132,6 +132,7 @@ interface Report {
 }
 
 interface Message {
+  batchId: string
   id: string
   from: string
   to: string
@@ -174,19 +175,7 @@ export default function AdminDashboard() {
   const router = useRouter()
 
   // Farm profile (single farm)
-  const [farmProfile, setFarmProfile] = useState<FarmProfile | null>({
-    id: "FARM-001",
-    name: "TARIQ POULTRY FARM",
-    email: "info@tariqfarm.com",
-    phone: "+255 700 000 000",
-    address: "Dar es Salaam, Tanzania",
-    logoUrl: "/placeholder-logo.png",
-    description: "Premium broiler production with professional standards.",
-    ownerName: "Tariq Ahmed",
-    establishedDate: "2020-05-10",
-    status: "Active",
-    rating: 5,
-  })
+  const [farmProfile, setFarmProfile] = useState<FarmProfile | null>(null)
   const [isEditFarmOpen, setIsEditFarmOpen] = useState(false)
   const [isViewFarmOpen, setIsViewFarmOpen] = useState(false)
   const [draftFarm, setDraftFarm] = useState<FarmProfile>({
@@ -204,236 +193,13 @@ export default function AdminDashboard() {
   })
 
   // Enhanced sample data
-  const [farmers, setFarmers] = useState<Farmer[]>([
-    {
-      id: "F001",
-      name: "John Mkulima",
-      email: "john@tariqfarm.com",
-      phone: "+255 123 456 789",
-      address: "Dar es Salaam, Tanzania",
-      joinDate: "2024-01-15",
-      status: "Active",
-      totalBatches: 3,
-      totalBirds: 5000,
-    },
-    {
-      id: "F002",
-      name: "Mary Farmer",
-      email: "mary@tariqfarm.com",
-      phone: "+255 987 654 321",
-      address: "Arusha, Tanzania",
-      joinDate: "2024-02-20",
-      status: "Active",
-      totalBatches: 2,
-      totalBirds: 3000,
-    },
-    {
-      id: "F003",
-      name: "Ibrahim Msambwe",
-      email: "ibrahim@tariqfarm.com",
-      phone: "+255 456 789 123",
-      address: "Mwanza, Tanzania",
-      joinDate: "2024-03-10",
-      status: "Active",
-      totalBatches: 1,
-      totalBirds: 200000,
-    },
-  ])
+  const [farmers, setFarmers] = useState<Farmer[]>([])
 
-  const [batches, setBatches] = useState<Batch[]>([
-    {
-      id: "B001",
-      name: "Alpha Premium Batch",
-      farmerId: "F001",
-      farmerName: "John Mkulima",
-      startDate: "2025-01-01",
-      birdCount: 2000,
-      age: 21,
-      status: "Active",
-      mortality: 50,
-      feedUsed: 120,
-      healthStatus: "Good",
-      temperature: 32,
-      humidity: 65,
-      username: "batch_alpha",
-      password: "alpha123",
-      color: "bg-blue-500",
-      expectedHarvestDate: "2025-02-15",
-      currentWeight: 1.8,
-      feedConversionRatio: 1.6,
-      vaccinations: 3,
-      lastHealthCheck: "2025-01-20",
-      notes: "High-performance batch with excellent growth rate",
-    },
-    {
-      id: "B002",
-      name: "Beta Standard Batch",
-      farmerId: "F001",
-      farmerName: "John Mkulima",
-      startDate: "2025-01-10",
-      birdCount: 1500,
-      age: 12,
-      status: "Active",
-      mortality: 30,
-      feedUsed: 80,
-      healthStatus: "Excellent",
-      temperature: 31,
-      humidity: 68,
-      username: "batch_beta",
-      password: "beta123",
-      color: "bg-green-500",
-      expectedHarvestDate: "2025-02-25",
-      currentWeight: 1.2,
-      feedConversionRatio: 1.5,
-      vaccinations: 2,
-      lastHealthCheck: "2025-01-19",
-      notes: "Standard batch with good health indicators",
-    },
-    {
-      id: "B003",
-      name: "MSAMBWE Elite Batch",
-      farmerId: "F003",
-      farmerName: "Ibrahim Msambwe",
-      startDate: "2025-01-15",
-      birdCount: 200000,
-      age: 7,
-      status: "Active",
-      mortality: 2000,
-      feedUsed: 8500,
-      healthStatus: "Excellent",
-      temperature: 30,
-      humidity: 70,
-      username: "msambwe_elite",
-      password: "elite2025",
-      color: "bg-purple-500",
-      expectedHarvestDate: "2025-03-01",
-      currentWeight: 0.8,
-      feedConversionRatio: 1.4,
-      vaccinations: 1,
-      lastHealthCheck: "2025-01-21",
-      notes: "Large-scale elite batch with premium genetics",
-    },
-  ])
+  const [batches, setBatches] = useState<Batch[]>([])
 
-  const [reports, setReports] = useState<Report[]>([
-    {
-      id: "R001",
-      type: "Daily",
-      batchId: "B001",
-      batchName: "Alpha Premium Batch",
-      farmerName: "John Mkulima",
-      title: "Daily Production Report - Week 3",
-      content:
-        "Daily monitoring shows excellent progress. Birds are healthy and active with good feed consumption rates.",
-      status: "Pending",
-      date: "2025-01-21",
-      priority: "Normal",
-      data: {
-        feedUsed: 15,
-        temperature: 32,
-        humidity: 65,
-        openCount: 1950,
-        closeCount: 1948,
-        weight: 1.8,
-      },
-    },
-    {
-      id: "R002",
-      type: "Mortality",
-      batchId: "B002",
-      batchName: "Beta Standard Batch",
-      farmerName: "John Mkulima",
-      title: "Mortality Incident Report",
-      content: "5 birds died due to heat stress during peak afternoon hours. Immediate cooling measures implemented.",
-      status: "Pending",
-      date: "2025-01-20",
-      priority: "High",
-      data: {
-        mortalityCount: 5,
-        temperature: 35,
-        healthNotes: "Heat stress symptoms observed. Ventilation improved.",
-      },
-    },
-    {
-      id: "R003",
-      type: "Health",
-      batchId: "B003",
-      batchName: "MSAMBWE Elite Batch",
-      farmerName: "Ibrahim Msambwe",
-      title: "Weekly Health Assessment",
-      content:
-        "Comprehensive health check completed. All indicators within optimal ranges. Vaccination schedule on track.",
-      status: "Approved",
-      date: "2025-01-19",
-      priority: "Normal",
-      data: {
-        temperature: 30,
-        humidity: 70,
-        healthNotes: "Excellent health status. No signs of disease.",
-        medicineUsed: "Multivitamins, Probiotics",
-      },
-      adminComment: "Excellent work! Keep maintaining these standards.",
-    },
-    {
-      id: "R004",
-      type: "Feed",
-      batchId: "B001",
-      batchName: "Alpha Premium Batch",
-      farmerName: "John Mkulima",
-      title: "Feed Consumption Analysis",
-      content: "Weekly feed analysis shows optimal consumption patterns. Feed conversion ratio improving steadily.",
-      status: "Approved",
-      date: "2025-01-18",
-      priority: "Normal",
-      data: {
-        feedUsed: 105,
-        weight: 1.8,
-        openCount: 1950,
-        closeCount: 1950,
-      },
-      adminComment: "Good feed management. Continue current feeding schedule.",
-    },
-  ])
+  const [reports, setReports] = useState<Report[]>([])
 
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "M001",
-      from: "John Mkulima",
-      to: "Admin",
-      subject: "Urgent: Veterinary Assistance Required",
-      content:
-        "Some birds in Alpha Premium Batch showing signs of respiratory distress. Need immediate veterinary consultation.",
-      status: "Unread",
-      date: "2025-01-21",
-      time: "14:30",
-      type: "Alert",
-      priority: "Urgent",
-    },
-    {
-      id: "M002",
-      from: "Ibrahim Msambwe",
-      to: "Admin",
-      subject: "Feed Supply Request",
-      content: "Running low on premium feed for MSAMBWE Elite Batch. Need to order 500 bags for next week.",
-      status: "Unread",
-      date: "2025-01-21",
-      time: "10:15",
-      type: "General",
-      priority: "High",
-    },
-    {
-      id: "M003",
-      from: "Mary Farmer",
-      to: "Admin",
-      subject: "Batch Performance Update",
-      content: "Gamma batch showing excellent growth rates. Expecting early harvest by 2 days.",
-      status: "Read",
-      date: "2025-01-20",
-      time: "16:45",
-      type: "Report",
-      priority: "Normal",
-    },
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
 
   const [newFarmer, setNewFarmer] = useState({
     name: "",
@@ -455,7 +221,7 @@ export default function AdminDashboard() {
 
   const translations = {
     en: {
-      title: "TARIQ Broiler Management - Admin Dashboard",
+              title: "TARIQ Broiler Manager - Admin Dashboard",
       welcome: "Welcome back, Administrator",
       dashboard: "Dashboard",
       farmerProfiles: "Farmer Profiles",
@@ -638,7 +404,89 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetch('/api/admin/candidates').then(r => r.json()).then(j => setCandidates(j.candidates || [])).catch(() => {})
+    // Load farmers from Supabase farm_profile
+    fetch('/api/admin/farmers').then(r => r.json()).then(j => {
+      const arr = (j.farmers || [])
+      setFarmers(arr.map((f: any) => ({
+        id: f.id,
+        name: f.name,
+        email: f.email || '',
+        phone: f.phone || '',
+        address: f.address || '',
+        joinDate: (f.created_at || '').split('T')[0] || '',
+        status: (f.status || 'Active') as 'Active' | 'Inactive',
+        totalBatches: 0,
+        totalBirds: 0,
+      })))
+      if (!farmProfile && arr.length > 0) {
+        const f = arr[0]
+        setFarmProfile({
+          id: f.id,
+          name: f.name,
+          email: f.email || '',
+          phone: f.phone || '',
+          address: f.address || '',
+          logoUrl: f.logo_url || '',
+          description: f.description || '',
+          ownerName: f.owner_name || '',
+          establishedDate: f.established_date || '',
+          status: (f.status || 'Active') as 'Active' | 'Inactive',
+          rating: typeof f.rating === 'number' ? f.rating : 0,
+        })
+      }
+    }).catch(() => {})
   }, [])
+
+  // Load batches from Supabase
+  useEffect(() => {
+    fetch('/api/admin/batches')
+      .then((r) => r.json())
+      .then((j) => setBatches((j.batches || []).map((b: any) => ({
+        id: b.id,
+        name: b.name,
+        farmerId: '',
+        farmerName: b.farmer_name || '',
+        startDate: b.start_date || '',
+        birdCount: b.bird_count || 0,
+        age: 0,
+        status: (b.status || 'Planning') as 'Active' | 'Completed' | 'Planning',
+        mortality: b.mortality || 0,
+        feedUsed: b.feed_used || 0,
+        healthStatus: (b.health_status || 'Good') as 'Excellent' | 'Good' | 'Fair' | 'Poor',
+        temperature: b.temperature || 30,
+        humidity: b.humidity || 65,
+        username: b.username || '',
+        password: b.password || '',
+        color: b.color || 'bg-blue-500',
+        notes: b.notes || '',
+        expectedHarvestDate: b.expected_harvest_date || '',
+        currentWeight: b.current_weight || 0,
+        feedConversionRatio: b.feed_conversion_ratio || 1.5,
+        vaccinations: b.vaccinations || 0,
+        lastHealthCheck: b.last_health_check || '',
+      }))))
+      .catch(() => {})
+  }, [])
+
+  // Auto-select first farm as profile if none is selected
+  useEffect(() => {
+    if (!farmProfile && farmers.length > 0) {
+      const f = farmers[0]
+      setFarmProfile({
+        id: f.id,
+        name: f.name,
+        email: f.email,
+        phone: f.phone,
+        address: f.address,
+        logoUrl: '',
+        description: '',
+        ownerName: '',
+        establishedDate: '',
+        status: f.status,
+        rating: 0,
+      })
+    }
+  }, [farmers, farmProfile])
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
@@ -659,61 +507,105 @@ export default function AdminDashboard() {
     router.push("/")
   }
 
-  const handleAddFarmer = () => {
-    const farmer: Farmer = {
-      id: `F${String(farmers.length + 1).padStart(3, "0")}`,
-      name: newFarmer.name,
-      email: newFarmer.email,
-      phone: newFarmer.phone,
-      address: newFarmer.address,
-      joinDate: new Date().toISOString().split("T")[0],
-      status: "Active",
-      totalBatches: 0,
-      totalBirds: 0,
+  const handleAddFarmer = async () => {
+    if (!newFarmer.name) return
+    try {
+      const res = await fetch('/api/admin/farmers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newFarmer.name,
+          email: newFarmer.email,
+          phone: newFarmer.phone,
+          address: newFarmer.address,
+          status: 'Active',
+        })
+      })
+      const j = await res.json()
+      if (res.ok && j.farmer) {
+        const f = j.farmer
+        setFarmers(prev => [...prev, {
+          id: f.id,
+          name: f.name,
+          email: f.email || '',
+          phone: f.phone || '',
+          address: f.address || '',
+          joinDate: (f.created_at || '').split('T')[0] || '',
+          status: (f.status || 'Active') as 'Active' | 'Inactive',
+          totalBatches: 0,
+          totalBirds: 0,
+        }])
+        setNewFarmer({ name: '', email: '', phone: '', address: '' })
+        setIsAddFarmerOpen(false)
+      } else {
+        console.error('Create farmer failed:', j?.error)
+      }
+    } catch (e) {
+      console.error('Create farmer exception', e)
     }
-    setFarmers([...farmers, farmer])
-    setNewFarmer({ name: "", email: "", phone: "", address: "" })
-    setIsAddFarmerOpen(false)
   }
 
-  const handleAddBatch = () => {
-    const selectedFarmer = farmers.find((f) => f.id === newBatch.farmerId)
-    const batch: Batch = {
-      id: `B${String(batches.length + 1).padStart(3, "0")}`,
-      name: newBatch.name,
-      farmerId: newBatch.farmerId,
-      farmerName: selectedFarmer?.name || "",
-      startDate: newBatch.startDate,
-      birdCount: Number.parseInt(newBatch.birdCount),
-      age: 0,
-      status: "Planning",
-      mortality: 0,
-      feedUsed: 0,
-      healthStatus: "Good",
-      temperature: 30,
-      humidity: 65,
-      username: newBatch.username,
-      password: newBatch.password,
-      color: newBatch.color,
-      notes: newBatch.notes,
-      expectedHarvestDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-      currentWeight: 0.05,
-      feedConversionRatio: 1.5,
-      vaccinations: 0,
-      lastHealthCheck: new Date().toISOString().split("T")[0],
+  const handleAddBatch = async () => {
+    if (!newBatch.name) return
+    try {
+      const selectedFarmer = farmers.find((f) => f.id === newBatch.farmerId)
+      const res = await fetch('/api/admin/batches', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newBatch.name,
+          farmerName: selectedFarmer?.name || null,
+          startDate: newBatch.startDate || null,
+          birdCount: Number.parseInt(newBatch.birdCount || '0'),
+          username: newBatch.username || null,
+          password: newBatch.password || null,
+          color: newBatch.color || null,
+          notes: newBatch.notes || null,
+        })
+      })
+      const j = await res.json()
+      if (res.ok && j.batch) {
+        setBatches(prev => [...prev, {
+          id: j.batch.id,
+          name: j.batch.name,
+          farmerId: newBatch.farmerId,
+          farmerName: j.batch.farmer_name || '',
+          startDate: j.batch.start_date || '',
+          birdCount: j.batch.bird_count || 0,
+          age: 0,
+          status: j.batch.status || 'Planning',
+          mortality: j.batch.mortality || 0,
+          feedUsed: j.batch.feed_used || 0,
+          healthStatus: j.batch.health_status || 'Good',
+          temperature: j.batch.temperature || 30,
+          humidity: j.batch.humidity || 65,
+          username: j.batch.username || '',
+          password: j.batch.password || '',
+          color: j.batch.color || 'bg-blue-500',
+          notes: j.batch.notes || '',
+          expectedHarvestDate: j.batch.expected_harvest_date || '',
+          currentWeight: j.batch.current_weight || 0,
+          feedConversionRatio: j.batch.feed_conversion_ratio || 1.5,
+          vaccinations: j.batch.vaccinations || 0,
+          lastHealthCheck: j.batch.last_health_check || '',
+        }])
+        setNewBatch({
+          name: '',
+          farmerId: '',
+          birdCount: '',
+          startDate: '',
+          username: '',
+          password: '',
+          color: 'bg-blue-500',
+          notes: '',
+        })
+        setIsAddBatchOpen(false)
+      } else {
+        console.error('Create batch failed:', j?.error)
+      }
+    } catch (e) {
+      console.error('Create batch exception', e)
     }
-    setBatches([...batches, batch])
-    setNewBatch({
-      name: "",
-      farmerId: "",
-      birdCount: "",
-      startDate: "",
-      username: "",
-      password: "",
-      color: "bg-blue-500",
-      notes: "",
-    })
-    setIsAddBatchOpen(false)
   }
 
   const handleViewBatchDetails = (batch: Batch) => {
@@ -757,7 +649,7 @@ export default function AdminDashboard() {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>TARIQ Broiler Management - Batch Report</title>
+            <title>TARIQ Broiler Manager - Batch Report</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; color: #333; }
         .header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
@@ -784,7 +676,7 @@ export default function AdminDashboard() {
 </head>
 <body>
     <div class="header">
-        <div class="logo">TARIQ BROILER MANAGEMENT</div>
+        <div class="logo">TARIQ BROILER MANAGER</div>
         <div class="title">Professional Batch Report</div>
         <div class="subtitle">Comprehensive Batch Analysis & Performance Metrics</div>
     </div>
@@ -922,8 +814,8 @@ export default function AdminDashboard() {
 
     <div class="footer">
         <strong>Export ID:</strong> ${Date.now()}<br>
-        <strong>Generated By:</strong> TARIQ Broiler Management System<br>
-        © 2025 TARIQ Broiler Management - Professional Poultry Solutions<br>
+        <strong>Generated By:</strong> TARIQ Broiler Manager System<br>
+        © 2025 TARIQ Broiler Manager - Professional Poultry Solutions<br>
         📧 Contact: admin@tariqbroiler.com | 📞 +255 123 456 789
     </div>
 </body>
@@ -968,7 +860,7 @@ export default function AdminDashboard() {
 </head>
 <body>
     <div class="header">
-        <div class="logo">TARIQ BROILER MANAGEMENT</div>
+        <div class="logo">TARIQ BROILER MANAGER</div>
         <div class="title">Professional Report Analysis</div>
         <div class="subtitle">${report.type} Report - Detailed Documentation</div>
     </div>
@@ -1137,7 +1029,7 @@ export default function AdminDashboard() {
     <div class="footer">
         <strong>Export ID:</strong> ${Date.now()}<br>
         <strong>Generated:</strong> ${new Date().toISOString()}<br>
-        © 2025 TARIQ Broiler Management - Professional Poultry Solutions<br>
+        © 2025 TARIQ Broiler Manager - Professional Poultry Solutions<br>
         📧 Contact: admin@tariqbroiler.com | 📞 +255 123 456 789
     </div>
 </body>
@@ -1157,9 +1049,9 @@ export default function AdminDashboard() {
     document.body.removeChild(a)
   }
 
-  const totalChicks = batches.reduce((sum, batch) => sum + batch.birdCount, 0)
-  const totalMortality = batches.reduce((sum, batch) => sum + batch.mortality, 0)
-  const activeFarmersCount = farmers.filter((f) => f.status === "Active").length
+  const totalChicks = batches.reduce((sum, batch) => sum + (batch.birdCount || 0), 0)
+  const totalMortality = batches.reduce((sum, batch) => sum + (batch.mortality || 0), 0)
+  const activeFarmersCount = Array.from(new Set(batches.map((b) => b.farmerName).filter(Boolean))).length
   const pendingReports = reports.filter((r) => r.status === "Pending").length
   const unreadMessages = messages.filter((m) => m.status === "Unread").length
 
@@ -1230,19 +1122,76 @@ export default function AdminDashboard() {
     }
   }
 
-  const handleSaveFarm = async () => {
-    setFarmProfile({ ...draftFarm, id: draftFarm.id || "FARM-001" })
-    try {
-      await fetch('/api/user/profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draftFarm)
-      })
-    } catch (e) {
-      console.error('Failed to sync farm profile to users', e)
-    }
-    setIsEditFarmOpen(false)
-  }
+  	const handleSaveFarm = async () => {
+		try {
+			const payload: any = {
+				name: draftFarm.name,
+				email: draftFarm.email || null,
+				phone: draftFarm.phone || null,
+				address: draftFarm.address || null,
+				logoUrl: draftFarm.logoUrl || null,
+				description: draftFarm.description || null,
+				ownerName: draftFarm.ownerName || null,
+				establishedDate: draftFarm.establishedDate || null,
+				status: draftFarm.status || null,
+				rating: draftFarm.rating ?? null,
+			}
+			// Only send id if it looks like a UUID; otherwise create new
+			if (draftFarm.id && draftFarm.id.includes('-') && draftFarm.id.length >= 36) {
+				payload.id = draftFarm.id
+			}
+
+			const res = await fetch('/api/admin/farmers', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(payload)
+			})
+			const j = await res.json()
+			if (res.ok && j.farmer) {
+				const f = j.farmer
+				const profile = {
+					id: f.id,
+					name: f.name,
+					email: f.email || '',
+					phone: f.phone || '',
+					address: f.address || '',
+					logoUrl: f.logo_url || '',
+					description: f.description || '',
+					ownerName: f.owner_name || '',
+					establishedDate: f.established_date || '',
+					status: (f.status || 'Active') as 'Active' | 'Inactive',
+					rating: typeof f.rating === 'number' ? f.rating : 0,
+				}
+				setFarmProfile(profile)
+				// upsert into farmers list
+				setFarmers(prev => {
+					const idx = prev.findIndex(x => x.id === f.id)
+					const base = {
+						id: f.id,
+						name: f.name,
+						email: f.email || '',
+						phone: f.phone || '',
+						address: f.address || '',
+						joinDate: (f.created_at || '').split('T')[0] || '',
+						status: (f.status || 'Active') as 'Active' | 'Inactive',
+						totalBatches: idx >= 0 ? prev[idx].totalBatches : 0,
+						totalBirds: idx >= 0 ? prev[idx].totalBirds : 0,
+					}
+					if (idx >= 0) {
+						const copy = [...prev]
+						copy[idx] = base
+						return copy
+					}
+					return [...prev, base]
+				})
+				setIsEditFarmOpen(false)
+			} else {
+				console.error('Save farm failed:', j?.error)
+			}
+		} catch (e) {
+			console.error('Failed to save farm', e)
+		}
+	}
 
   const handleDeleteFarm = () => {
     setIsConfirmFarmDeleteOpen(true)
@@ -1257,25 +1206,26 @@ export default function AdminDashboard() {
   const logoInputRef = useRef<HTMLInputElement | null>(null)
 
   const [showFarmersList, setShowFarmersList] = useState(false)
-  const enableSupabaseUpload = false
+  	const enableSupabaseUpload = true
 
-  const handleUploadLogo = async (file: File) => {
-    try {
-      const previewUrl = URL.createObjectURL(file)
-      setDraftFarm((prev) => ({ ...prev, logoUrl: previewUrl }))
-      if (!enableSupabaseUpload) return
-      const fileName = `farm-logos/${Date.now()}-${file.name}`
-      const { data, error } = await supabase.storage.from("logos").upload(fileName, file, {
-        cacheControl: "3600",
-        upsert: true,
-      })
-      if (error) throw error
-      const { data: publicUrl } = supabase.storage.from("logos").getPublicUrl(data.path)
-      setDraftFarm((prev) => ({ ...prev, logoUrl: publicUrl.publicUrl }))
-    } catch (e) {
-      console.error("Logo upload failed", e)
-    }
-  }
+  	const handleUploadLogo = async (file: File) => {
+		try {
+			const previewUrl = URL.createObjectURL(file)
+			setDraftFarm((prev) => ({ ...prev, logoUrl: previewUrl }))
+			if (!enableSupabaseUpload) return
+			const fd = new FormData()
+			fd.append('file', file)
+			const res = await fetch('/api/admin/farmers/logo-upload', { method: 'POST', body: fd })
+			const j = await res.json()
+			if (res.ok && j.publicUrl) {
+				setDraftFarm((prev) => ({ ...prev, logoUrl: j.publicUrl }))
+			} else {
+				console.error('Logo upload failed:', j?.error)
+			}
+		} catch (e) {
+			console.error("Logo upload failed", e)
+		}
+	}
 
   const calculateAgeDays = (dateStr: string) => {
     const start = new Date(dateStr)
@@ -1318,11 +1268,70 @@ export default function AdminDashboard() {
     setIsEditBatchOpen(true)
   }
 
-  const handleSaveBatch = () => {
-    if (!draftBatch) return
-    setBatches((prev) => prev.map((x) => (x.id === draftBatch.id ? { ...draftBatch } : x)))
-    setIsEditBatchOpen(false)
-  }
+  	const handleSaveBatch = async () => {
+		if (!draftBatch) return
+		try {
+			const res = await fetch('/api/admin/batches', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					id: draftBatch.id,
+					name: draftBatch.name,
+					farmerName: draftBatch.farmerName,
+					startDate: draftBatch.startDate,
+					birdCount: draftBatch.birdCount,
+					status: draftBatch.status,
+					mortality: draftBatch.mortality,
+					feedUsed: draftBatch.feedUsed,
+					healthStatus: draftBatch.healthStatus,
+					temperature: draftBatch.temperature,
+					humidity: draftBatch.humidity,
+					username: draftBatch.username,
+					password: draftBatch.password,
+					color: draftBatch.color,
+					expectedHarvestDate: draftBatch.expectedHarvestDate,
+					currentWeight: draftBatch.currentWeight,
+					feedConversionRatio: draftBatch.feedConversionRatio,
+					vaccinations: draftBatch.vaccinations,
+					lastHealthCheck: draftBatch.lastHealthCheck,
+					notes: draftBatch.notes,
+				})
+			})
+			const j = await res.json()
+			if (res.ok && j.batch) {
+				const b = j.batch
+				setBatches(prev => prev.map(x => x.id === b.id ? {
+					id: b.id,
+					name: b.name,
+					farmerId: x.farmerId || '',
+					farmerName: b.farmer_name || '',
+					startDate: b.start_date || '',
+					birdCount: b.bird_count || 0,
+					age: x.age || 0,
+					status: b.status || 'Planning',
+					mortality: b.mortality || 0,
+					feedUsed: b.feed_used || 0,
+					healthStatus: b.health_status || 'Good',
+					temperature: b.temperature || 30,
+					humidity: b.humidity || 65,
+					username: b.username || '',
+					password: b.password || '',
+					color: b.color || 'bg-blue-500',
+					notes: b.notes || '',
+					expectedHarvestDate: b.expected_harvest_date || '',
+					currentWeight: b.current_weight || 0,
+					feedConversionRatio: b.feed_conversion_ratio || 1.5,
+					vaccinations: b.vaccinations || 0,
+					lastHealthCheck: b.last_health_check || '',
+				} : x))
+				setIsEditBatchOpen(false)
+			} else {
+				console.error('Update batch failed:', j?.error)
+			}
+		} catch (e) {
+			console.error('Update batch exception', e)
+		}
+	}
 
   const handleConfirmDeleteBatch = (b: Batch) => {
     setBatchToDelete(b)
@@ -1461,7 +1470,7 @@ export default function AdminDashboard() {
                     <p className="text-3xl font-bold text-red-800">{totalMortality.toLocaleString()}</p>
                     <p className="text-xs text-red-600 flex items-center mt-2">
                       <TrendingDown className="h-3 w-3 mr-1" />
-                      {((totalMortality / totalChicks) * 100).toFixed(2)}% mortality rate
+                      {totalChicks > 0 ? ((totalMortality / totalChicks) * 100).toFixed(2) : '0.00'}% mortality rate
                     </p>
                   </div>
                   <div className="w-14 h-14 bg-red-500 rounded-full flex items-center justify-center shadow-lg">
@@ -2511,39 +2520,7 @@ export default function AdminDashboard() {
             </Card>
           </div>
 
-          {/* Real-time Performance Chart */}
-          <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Real-time Performance Monitoring
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
-                  <TrendingUp className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-                  <h4 className="font-bold text-blue-800 text-xl">Production Rate</h4>
-                  <p className="text-4xl font-bold text-blue-600 my-2">94.5%</p>
-                  <p className="text-sm text-blue-600">Above industry average</p>
-                </div>
-
-                <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
-                  <Heart className="h-12 w-12 text-green-600 mx-auto mb-3" />
-                  <h4 className="font-bold text-green-800 text-xl">Health Score</h4>
-                  <p className="text-4xl font-bold text-green-600 my-2">96.2%</p>
-                  <p className="text-sm text-green-600">Excellent health status</p>
-                </div>
-
-                <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
-                  <Zap className="h-12 w-12 text-purple-600 mx-auto mb-3" />
-                  <h4 className="font-bold text-purple-800 text-xl">Efficiency</h4>
-                  <p className="text-4xl font-bold text-purple-600 my-2">92.8%</p>
-                  <p className="text-sm text-purple-600">Optimal feed conversion</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Real-time Performance Chart removed */}
         </TabsContent>
         {/* System Settings Tab */}
         <TabsContent value="settings" className="space-y-6">

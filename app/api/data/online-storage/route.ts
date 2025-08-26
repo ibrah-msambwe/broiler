@@ -37,28 +37,7 @@ ONLINE_DATABASE.set("ibrahim8msambwe@gmail.com", {
     },
   ],
   credentials: [
-    {
-      id: "1",
-      user_email: "ibrahim8msambwe@gmail.com",
-      device_id: "1",
-      device_name: "Ibrahim's Main Server",
-      username: "ibrahim",
-      password: "SecureServerPass123!",
-      service: "SSH Root Access",
-      notes: "Primary server administrative access",
-      created_at: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      user_email: "ibrahim8msambwe@gmail.com",
-      device_id: "2",
-      device_name: "Gmail Account",
-      username: "ibrahim8msambwe@gmail.com",
-      password: "Msambwe@4687",
-      service: "Email Account",
-      notes: "Primary email account credentials",
-      created_at: new Date().toISOString(),
-    },
+
   ],
   backups: [],
   settings: {

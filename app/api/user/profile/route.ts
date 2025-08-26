@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase"
 
 export async function GET() {
 	const supabase = createServerSupabaseClient()
-	const { data, error } = await supabase.from("farm_profile").select("*").order("created_at", { ascending: true }).limit(1).maybeSingle()
+	const { data, error } = await supabase.from("farm_profile").select("*").limit(1).maybeSingle()
 	if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 	return NextResponse.json({ farmProfile: data || null })
 }
@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 		}).eq("id", body.id).select("*").maybeSingle()
 	} else {
 		result = await supabase.from("farm_profile").insert({
+			id: body.id || undefined,
 			name: body.name,
 			email: body.email,
 			phone: body.phone,
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
 			established_date: body.establishedDate,
 			status: body.status,
 			rating: body.rating,
+			created_at: new Date().toISOString(),
 		}).select("*").maybeSingle()
 	}
 	if (result.error) return NextResponse.json({ error: result.error.message }, { status: 500 })

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Shield, Lock, Mail, User, ArrowLeft, CheckCircle } from "lucide-react"
+import { Eye, EyeOff, Shield, Lock, Mail, User, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
@@ -17,9 +17,17 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     contactName: "",
     email: "",
-    batchName: "",
     username: "",
     password: "",
+    confirmPassword: "",
+    phone: "",
+    farmingExperience: "",
+    farmSize: "",
+    broilerExperience: "",
+    address: "",
+    preferredBatchSize: "",
+    expectedStartDate: "",
+    additionalInfo: "",
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -30,23 +38,34 @@ export default function RegisterPage() {
     setLoading(true)
     setError("")
 
-    if (!formData.contactName || !formData.email || !formData.batchName || !formData.username || !formData.password) {
-      setError("All fields are required")
+    if (!formData.contactName || !formData.email || !formData.username || !formData.password || !formData.confirmPassword) {
+      setError("All required fields must be filled")
+      setLoading(false)
+      return
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match")
       setLoading(false)
       return
     }
 
     try {
+      const computedBatchName = formData.preferredBatchSize ? `Preferred Batch ${formData.preferredBatchSize}` : `Request by ${formData.contactName}`
       const response = await fetch("/api/register-batch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          contactName: formData.contactName,
+          email: formData.email,
+          batchName: computedBatchName,
+          username: formData.username,
+          password: formData.password,
+        }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
-        // Do NOT log the user in. Show success message and redirect to home/login.
         alert("Registration submitted. Await admin approval.")
         window.location.href = "/"
       } else {
@@ -86,10 +105,10 @@ export default function RegisterPage() {
             </div>
           </div>
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Create Account
+            Register Account
           </CardTitle>
           <CardDescription className="text-gray-600 text-base">
-            Join SecureVault Pro and protect your passwords
+            Create your farmer account to get started
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -113,13 +132,13 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="contactName" className="text-gray-700 font-medium">
-                Contact Name
+                Full Name *
               </Label>
               <div className="relative">
                 <Input
                   id="contactName"
                   type="text"
-                  placeholder="Your full name"
+                  placeholder="Enter your full name"
                   value={formData.contactName}
                   onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))}
                   className="pl-10 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
@@ -131,13 +150,13 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-gray-700 font-medium">
-                Email Address
+                Email Address *
               </Label>
               <div className="relative">
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Enter your email address"
                   value={formData.email}
                   onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))}
                   className="pl-10 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
@@ -148,44 +167,116 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="batchName" className="text-gray-700 font-medium">
-                Batch Name
+              <Label htmlFor="phone" className="text-gray-700 font-medium">
+                Phone Number
               </Label>
-              <div className="relative">
+              <Input
+                id="phone"
+                type="text"
+                placeholder="+254 700 000 000"
+                value={formData.phone}
+                onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))}
+                className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">Farming Experience (Years)</Label>
                 <Input
-                  id="batchName"
-                  type="text"
-                  placeholder="e.g., Sunrise Batch"
-                  value={formData.batchName}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, batchName: e.target.value }))}
-                  className="pl-10 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
-                  required
+                  type="number"
+                  placeholder="Select experience level"
+                  value={formData.farmingExperience}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, farmingExperience: e.target.value }))}
+                  className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
                 />
-                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">Farm Size (Acres)</Label>
+                <Input
+                  type="number"
+                  placeholder="e.g., 5 acres"
+                  value={formData.farmSize}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, farmSize: e.target.value }))}
+                  className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">Broiler Experience</Label>
+                <Input
+                  type="text"
+                  placeholder="Select broiler experience"
+                  value={formData.broilerExperience}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, broilerExperience: e.target.value }))}
+                  className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-medium">Preferred Batch Size</Label>
+                <Input
+                  type="number"
+                  placeholder="Select preferred batch size"
+                  value={formData.preferredBatchSize}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, preferredBatchSize: e.target.value }))}
+                  className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-medium">Farm Address *</Label>
+              <Input
+                type="text"
+                placeholder="Enter your farm address"
+                value={formData.address}
+                onChange={(e) => setFormData((prev) => ({ ...prev, address: e.target.value }))}
+                className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-medium">Expected Start Date</Label>
+              <Input
+                type="date"
+                placeholder="mm/dd/yyyy"
+                value={formData.expectedStartDate}
+                onChange={(e) => setFormData((prev) => ({ ...prev, expectedStartDate: e.target.value }))}
+                className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-gray-700 font-medium">Additional Information</Label>
+              <Input
+                type="text"
+                placeholder="Any additional information about your farming goals or requirements"
+                value={formData.additionalInfo}
+                onChange={(e) => setFormData((prev) => ({ ...prev, additionalInfo: e.target.value }))}
+                className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="username" className="text-gray-700 font-medium">
-                Desired Batch Username
+                Username *
               </Label>
-              <div className="relative">
-                <Input
-                  id="username"
-                  type="text"
-                  placeholder="batch_username"
-                  value={formData.username}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
-                  className="pl-10 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
-                  required
-                />
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-              </div>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Choose a username"
+                value={formData.username}
+                onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+                className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                required
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password" className="text-gray-700 font-medium">
-                Desired Password
+                Password *
               </Label>
               <div className="relative">
                 <Input
@@ -194,10 +285,9 @@ export default function RegisterPage() {
                   placeholder="Create a password"
                   value={formData.password}
                   onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
-                  className="pl-10 pr-12 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                  className="pr-12 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
                   required
                 />
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Button
                   type="button"
                   variant="ghost"
@@ -208,6 +298,38 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
+              <div className="flex items-center gap-2 mt-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className={`h-2 flex-1 rounded ${i < passwordStrength ? strengthColors[passwordStrength - 1] : "bg-gray-200"}`}></div>
+                ))}
+                <span className="text-xs text-gray-500">{passwordStrength > 0 ? strengthLabels[passwordStrength - 1] : ""}</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">
+                Confirm Password *
+              </Label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Re-enter password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="pr-12 h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-gray-100"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
 
             <Button
@@ -215,38 +337,9 @@ export default function RegisterPage() {
               className="w-full h-12 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-medium text-base shadow-lg hover:shadow-xl transition-all duration-200"
               disabled={loading}
             >
-              {loading ? (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Submitting...</span>
-                </div>
-              ) : (
-                <div className="flex items-center space-x-2">
-                  <Shield className="h-4 w-4" />
-                  <span>Submit for Approval</span>
-                </div>
-              )}
+              {loading ? "Submitting..." : "Submit Registration"}
             </Button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{" "}
-              <Button
-                variant="link"
-                onClick={() => router.push("/login")}
-                className="text-blue-600 hover:text-blue-700 p-0 h-auto font-medium"
-              >
-                Sign in here
-              </Button>
-            </p>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-xs text-gray-500">
-              By creating an account, you agree to our Terms of Service and Privacy Policy
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>

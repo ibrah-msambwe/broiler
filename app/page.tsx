@@ -13,7 +13,7 @@ export default function LandingPage() {
 
   const translations = {
     en: {
-      title: "Tariq Broiler Management",
+      title: "TARIQ Broiler Manager",
       batches: "Broiler Batches",
       batchesDesc: "Register and manage broiler batches",
       farmerLogin: "Farmer Login",
@@ -24,7 +24,7 @@ export default function LandingPage() {
       featuresDesc: "Broiler management overview",
     },
     sw: {
-      title: "Usimamizi wa Kuku wa Nyama wa Tariq",
+      title: "Msimamizi wa Kuku wa Nyama wa TARIQ",
       batches: "Makundi ya Kuku wa Nyama",
       batchesDesc: "Sajili na simamia makundi ya kuku wa nyama",
       farmerLogin: "Kuingia Mkulima",
@@ -84,7 +84,7 @@ export default function LandingPage() {
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-300/40 to-orange-300/40 rounded-full blur-lg transform translate-x-1 translate-y-1"></div>
                 <Image
                   src="/images/chick-hero.png"
-                  alt="Tariq Broiler Management Logo"
+                  alt="TARIQ Broiler Manager Logo"
                   width={60}
                   height={60}
                   className="relative z-10 drop-shadow-2xl filter brightness-110 contrast-110"
@@ -106,7 +106,7 @@ export default function LandingPage() {
                       BROILER{" "}
                     </span>
                     <span className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent font-bold">
-                      MANAGEMENT
+                      MANAGER
                     </span>
                   </span>
                   <span className="absolute inset-0 blur-md opacity-50 transform translate-x-1 translate-y-1">
@@ -118,7 +118,7 @@ export default function LandingPage() {
                       BROILER{" "}
                     </span>
                     <span className="bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 bg-clip-text text-transparent font-bold">
-                      MANAGEMENT
+                      MANAGER
                     </span>
                   </span>
                   <span className="absolute inset-0 blur-sm opacity-60 transform translate-x-0.5 translate-y-0.5">
@@ -130,7 +130,7 @@ export default function LandingPage() {
                       BROILER{" "}
                     </span>
                     <span className="bg-gradient-to-r from-green-300 via-blue-300 to-purple-300 bg-clip-text text-transparent font-bold">
-                      MANAGEMENT
+                      MANAGER
                     </span>
                   </span>
                   {/* Main text with reduced uniform sizing */}
@@ -149,7 +149,7 @@ export default function LandingPage() {
                       BROILER{" "}
                     </span>
                     <span className="bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent font-bold">
-                      MANAGEMENT
+                      MANAGER
                     </span>
                   </span>
                 </h1>

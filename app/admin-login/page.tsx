@@ -11,10 +11,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Shield, User, Lock, Eye, EyeOff, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { supabase } from "@/lib/supabase"
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState("tariq")
-  const [password, setPassword] = useState("ABC123")
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -25,27 +26,27 @@ export default function AdminLogin() {
     en: {
       title: "Admin Login",
       subtitle: "Access your admin dashboard",
-      username: "Username",
+      username: "Username or Email",
       password: "Password",
       login: "Login as Admin",
       backToHome: "Back to Home",
-      demoCredentials: "Demo Credentials",
-      usernamePlaceholder: "Enter your username",
+
+      usernamePlaceholder: "Enter username or email",
       passwordPlaceholder: "Enter your password",
-      invalidCredentials: "Invalid username or password",
+      invalidCredentials: "Invalid credentials or not an admin",
       loggingIn: "Logging in...",
     },
     sw: {
       title: "Kuingia kwa Msimamizi",
       subtitle: "Fikia dashibodi yako ya usimamizi",
-      username: "Jina la Mtumiaji",
+      username: "Jina la Mtumiaji au Barua Pepe",
       password: "Nywila",
       login: "Ingia kama Msimamizi",
       backToHome: "Rudi Nyumbani",
-      demoCredentials: "Uthibitisho wa Mfano",
-      usernamePlaceholder: "Ingiza jina la mtumiaji",
+
+      usernamePlaceholder: "Ingiza jina la mtumiaji au barua pepe",
       passwordPlaceholder: "Ingiza nywila yako",
-      invalidCredentials: "Jina la mtumiaji au nywila si sahihi",
+      invalidCredentials: "Taarifa sio sahihi au si msimamizi",
       loggingIn: "Inaingia...",
     },
   }
@@ -58,18 +59,31 @@ export default function AdminLogin() {
     setIsLoading(true)
 
     try {
-      if (username === "tariq" && password === "ABC123") {
-        const adminUser = {
-          id: "admin-1",
-          username: username,
-          name: "Administrator",
-          role: "admin",
-        }
-        localStorage.setItem("user", JSON.stringify(adminUser))
-        router.push("/admin-dashboard")
-      } else {
+      const email = username.includes("@") ? username : `${username}@local.test`
+      const { data: auth, error: authErr } = await supabase.auth.signInWithPassword({ email, password })
+      if (authErr || !auth?.user) {
         setError(t.invalidCredentials)
+        setIsLoading(false)
+        return
       }
+      const { data: profile, error: pErr } = await supabase
+        .from("profiles")
+        .select("id, username, email, role")
+        .eq("id", auth.user.id)
+        .maybeSingle()
+      if (pErr || !profile || profile.role !== "admin") {
+        setError(t.invalidCredentials)
+        setIsLoading(false)
+        return
+      }
+      const adminUser = {
+        id: profile.id,
+        username: profile.username,
+        name: "Administrator",
+        role: profile.role,
+      }
+      localStorage.setItem("user", JSON.stringify(adminUser))
+      router.push("/admin-dashboard")
     } catch (error) {
       setError(t.invalidCredentials)
     } finally {
@@ -88,7 +102,7 @@ export default function AdminLogin() {
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 to-orange-400/40 rounded-full blur-xl transform translate-x-2 translate-y-2"></div>
                 <Image
                   src="/images/chick-hero.png"
-                  alt="TARIQ BROILER MANAGEMENT"
+                  alt="TARIQ BROiler Manager"
                   width={40}
                   height={40}
                   className="relative z-10 drop-shadow-2xl filter brightness-110 contrast-110"
@@ -149,17 +163,7 @@ export default function AdminLogin() {
               <CardDescription className="text-center">{t.subtitle}</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Demo Credentials Alert */}
-              <Alert className="mb-6 border-blue-200 bg-blue-50">
-                <Shield className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800">
-                  <strong>{t.demoCredentials}:</strong>
-                  <br />
-                  Username: tariq
-                  <br />
-                  Password: ABC123
-                </AlertDescription>
-              </Alert>
+
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">

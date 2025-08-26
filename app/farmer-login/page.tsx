@@ -8,13 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { User, Lock, Eye, EyeOff, ArrowLeft, Users } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, ArrowLeft, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+// removed Supabase auth import; using server-side batch login instead
 
 export default function FarmerLogin() {
-  const [username, setUsername] = useState("batch_alpha")
-  const [password, setPassword] = useState("alpha123")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -25,12 +26,12 @@ export default function FarmerLogin() {
     en: {
       title: "Batch Login",
       subtitle: "Access your batch dashboard",
-      username: "Batch Username",
+      email: "Batch Username",
       password: "Password",
       login: "Login to Batch",
       backToHome: "Back to Home",
-      demoCredentials: "Demo Credentials",
-      usernamePlaceholder: "Enter your batch username",
+
+      emailPlaceholder: "Enter your batch username",
       passwordPlaceholder: "Enter your password",
       invalidCredentials: "Invalid username or password",
       loggingIn: "Logging in...",
@@ -38,12 +39,12 @@ export default function FarmerLogin() {
     sw: {
       title: "Kuingia kwa Kundi",
       subtitle: "Fikia dashibodi ya kundi lako",
-      username: "Jina la Mtumiaji la Kundi",
+      email: "Jina la Mtumiaji la Kundi",
       password: "Nywila",
       login: "Ingia kwenye Kundi",
       backToHome: "Rudi Nyumbani",
-      demoCredentials: "Uthibitisho wa Mfano",
-      usernamePlaceholder: "Ingiza jina la mtumiaji la kundi",
+
+      emailPlaceholder: "Ingiza jina la mtumiaji la kundi",
       passwordPlaceholder: "Ingiza nywila yako",
       invalidCredentials: "Jina la mtumiaji au nywila si sahihi",
       loggingIn: "Inaingia...",
@@ -58,18 +59,26 @@ export default function FarmerLogin() {
     setIsLoading(true)
 
     try {
+      // Use server endpoint to authenticate against batches table
       const res = await fetch("/api/auth/batch-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username: email, password }),
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(t.invalidCredentials)
-      } else {
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/batch-dashboard")
+        setError(data?.error || t.invalidCredentials)
+        return
       }
+      // Optional gate on status if needed
+      if (data.batch?.status && data.batch.status !== "Active" && data.batch.status !== "Planning") {
+        setError("Batch not approved yet. Please contact admin.")
+        return
+      }
+      localStorage.setItem("user", JSON.stringify(data.user))
+      if (data.batchId) localStorage.setItem("batchId", data.batchId)
+      if (data.batch?.username) localStorage.setItem("batchUsername", data.batch.username)
+      router.push("/batch-dashboard")
     } catch (error) {
       setError(t.invalidCredentials)
     } finally {
@@ -88,7 +97,7 @@ export default function FarmerLogin() {
                 <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 to-orange-400/40 rounded-full blur-xl transform translate-x-2 translate-y-2"></div>
                 <Image
                   src="/images/chick-hero.png"
-                  alt="TARIQ BROILER MANAGEMENT"
+                  alt="TARIQ BROiler Manager"
                   width={40}
                   height={40}
                   className="relative z-10 drop-shadow-2xl filter brightness-110 contrast-110"
@@ -149,30 +158,20 @@ export default function FarmerLogin() {
               <CardDescription className="text-center">{t.subtitle}</CardDescription>
             </CardHeader>
             <CardContent>
-              {/* Demo Credentials Alert */}
-              <Alert className="mb-6 border-green-200 bg-green-50">
-                <Users className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800">
-                  <strong>{t.demoCredentials}:</strong>
-                  <br />
-                  Username: batch_alpha
-                  <br />
-                  Password: alpha123
-                </AlertDescription>
-              </Alert>
+
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="username" className="flex items-center space-x-2">
-                    <User className="h-4 w-4" />
-                    <span>{t.username}</span>
+                  <Label htmlFor="email" className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4" />
+                    <span>{t.email}</span>
                   </Label>
                   <Input
-                    id="username"
+                    id="email"
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder={t.usernamePlaceholder}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t.emailPlaceholder}
                     required
                     className="h-12"
                   />

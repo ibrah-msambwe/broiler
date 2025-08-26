@@ -13,10 +13,8 @@ import { useRouter } from "next/navigation"
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  })
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -27,21 +25,26 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const response = await fetch("/api/auth/batch-login", {
+      const r = await fetch("/api/auth/batch-login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ username, password }),
       })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        localStorage.setItem("user", JSON.stringify(data.user))
-        router.push("/batch-dashboard")
-      } else {
-        setError(data.error || "Login failed")
+      const j = await r.json()
+      if (!r.ok) {
+        setError(j?.error || "Invalid credentials")
+        return
       }
-    } catch (err) {
+      // Optional: disallow login for non-approved statuses
+      if (j.batch?.status && j.batch.status !== "Active" && j.batch.status !== "Planning") {
+        setError("Batch not approved yet. Please contact admin.")
+        return
+      }
+      localStorage.setItem("user", JSON.stringify(j.user))
+      if (j.batchId) localStorage.setItem("batchId", j.batchId)
+      if (j.batch?.username) localStorage.setItem("batchUsername", j.batch.username)
+      router.push("/batch-dashboard")
+    } catch {
       setError("Network error. Please try again.")
     } finally {
       setLoading(false)
@@ -63,7 +66,7 @@ export default function LoginPage() {
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Welcome Back
           </CardTitle>
-          <CardDescription className="text-gray-600 text-base">Sign in to your SecureVault Pro account</CardDescription>
+          <CardDescription className="text-gray-600 text-base">Sign in to your batch</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-6">
@@ -92,12 +95,13 @@ export default function LoginPage() {
                 <Input
                   id="username"
                   type="text"
-                  placeholder="Enter your batch username"
-                  value={formData.username}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, username: e.target.value }))}
+                  placeholder="batch_username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="pl-10 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               </div>
             </div>
 
@@ -110,8 +114,8 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, password: e.target.value }))}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-12 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   required
                 />
@@ -141,7 +145,7 @@ export default function LoginPage() {
               ) : (
                 <div className="flex items-center space-x-2">
                   <Shield className="h-4 w-4" />
-                  <span>Sign In to Vault</span>
+                  <span>Sign In</span>
                 </div>
               )}
             </Button>
@@ -155,7 +159,7 @@ export default function LoginPage() {
                 onClick={() => router.push("/register")}
                 className="text-blue-600 hover:text-blue-700 p-0 h-auto font-medium"
               >
-                Register batch for approval
+                Register for approval
               </Button>
             </p>
           </div>

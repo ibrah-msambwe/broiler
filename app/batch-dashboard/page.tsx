@@ -98,6 +98,12 @@ export default function BatchDashboard() {
 	const [isSubmittingReport, setIsSubmittingReport] = useState(false)
 	const [isSendingMessage, setIsSendingMessage] = useState(false)
 	const [reportFields, setReportFields] = useState<Record<string, any>>({})
+	
+	// Modal state
+	const [isReportModalOpen, setIsReportModalOpen] = useState(false)
+	const [selectedReportType, setSelectedReportType] = useState<Report["type"]>("Daily")
+	const [selectedReport, setSelectedReport] = useState<Report | undefined>(undefined)
+	const [modalMode, setModalMode] = useState<"create" | "view">("create")
 
 	const setField = (key: string, value: any) => setReportFields((prev) => ({ ...prev, [key]: value }))
 
@@ -203,6 +209,32 @@ export default function BatchDashboard() {
 			}
 		} finally {
 			setIsSendingMessage(false)
+		}
+	}
+
+	// Modal functions
+	const openCreateReportModal = (type: Report["type"]) => {
+		setSelectedReportType(type)
+		setModalMode("create")
+		setSelectedReport(undefined)
+		setIsReportModalOpen(true)
+	}
+
+	const openViewReportModal = (report: Report) => {
+		setSelectedReport(report)
+		setModalMode("view")
+		setIsReportModalOpen(true)
+	}
+
+	const handleReportSubmitted = (newReport: Report) => {
+		setReports((prev) => [newReport, ...prev])
+		setIsReportModalOpen(false)
+		// Refresh stats after report submission
+		if (batch?.id) {
+			fetch(`/api/user/stats?batchId=${encodeURIComponent(batch.id)}`)
+				.then(res => res.json())
+				.then(data => setStats(data.stats || null))
+				.catch(console.warn)
 		}
 	}
 
