@@ -40,6 +40,7 @@ import {
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import { cn } from "@/lib/utils"
 
 interface User {
   email: string
@@ -588,21 +589,21 @@ export default function FarmerDashboard() {
                 </Badge>
               )}
 
-              {/* Language Switcher */}
-              <div className="flex bg-white/90 backdrop-blur-sm rounded-lg p-1 shadow-lg border border-gray-200">
+              {/* Language Switcher - HESK Blue Style */}
+              <div className="flex items-center gap-0 bg-blue-50 border border-blue-300">
                 <Button
-                  variant={language === "en" ? "default" : "ghost"}
+                  variant="ghost"
                   size="sm"
                   onClick={() => setLanguage("en")}
-                  className="text-xs font-medium"
+                  className={cn("h-8 px-3 text-xs font-normal border-0 rounded-none", language === "en" ? "bg-white border-r border-blue-300 text-blue-800" : "hover:bg-white/50 text-blue-700")}
                 >
                   EN
                 </Button>
                 <Button
-                  variant={language === "sw" ? "default" : "ghost"}
+                  variant="ghost"
                   size="sm"
                   onClick={() => setLanguage("sw")}
-                  className="text-xs font-medium"
+                  className={cn("h-8 px-3 text-xs font-normal border-0 rounded-none", language === "sw" ? "bg-white text-blue-800" : "hover:bg-white/50 text-blue-700")}
                 >
                   SW
                 </Button>
@@ -611,9 +612,8 @@ export default function FarmerDashboard() {
               <Button
                 variant="outline"
                 onClick={handleLogout}
-                className="flex items-center gap-2 bg-white/80 hover:bg-red-50 hover:text-red-600 transition-colors"
+                className="h-8 px-3 text-xs font-normal border-blue-300 rounded-none hover:bg-blue-50 text-blue-700"
               >
-                <LogOut className="h-4 w-4" />
                 {t.logout}
               </Button>
             </div>

@@ -6,10 +6,44 @@ export async function POST(request: NextRequest) {
 		// Log the request for debugging
 		console.log("🔐 Batch login attempt received")
 		
-		const { username, password } = await request.json()
+		const body = await request.json()
+		
+		// Validate request body exists
+		if (!body || typeof body !== 'object') {
+			console.log("❌ Invalid request format")
+			return NextResponse.json({ 
+				error: "Invalid request format. Please provide valid JSON data." 
+			}, { status: 400 })
+		}
+
+		const { username, password } = body
+		
+		// Validate required fields
 		if (!username || !password) {
 			console.log("❌ Missing username or password")
-			return NextResponse.json({ error: "username and password required" }, { status: 400 })
+			return NextResponse.json({ 
+				error: "Both username and password are required",
+				missing: {
+					username: !username,
+					password: !password
+				}
+			}, { status: 400 })
+		}
+
+		// Validate field types
+		if (typeof username !== 'string' || typeof password !== 'string') {
+			console.log("❌ Invalid field types")
+			return NextResponse.json({ 
+				error: "Username and password must be strings" 
+			}, { status: 400 })
+		}
+
+		// Validate field lengths
+		if (username.trim().length === 0 || password.trim().length === 0) {
+			console.log("❌ Empty username or password")
+			return NextResponse.json({ 
+				error: "Username and password cannot be empty" 
+			}, { status: 400 })
 		}
 		
 		console.log(`🔍 Attempting login for username: ${username}`)
@@ -58,15 +92,39 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
 		}
 		
+		// Check if user is approved
+		if (batch.is_approved === false) {
+			console.log(`⏳ Batch user not approved yet: ${batch.name || batch.id}`)
+			return NextResponse.json({ 
+				error: "Batch not approved yet. Please contact admin.",
+				approved: false,
+				batchName: batch.name
+			}, { status: 403 })
+		}
+		
 		console.log(`✅ Login successful for batch: ${batch.name || batch.id}`)
 		
 		return NextResponse.json({
-			user: { role: "batch", username: batch.username, email: null, id: batch.id },
+			user: { 
+				role: "batch", 
+				username: batch.username, 
+				email: null, 
+				id: batch.id,
+				batchId: batch.id 
+			},
 			batchId: batch.id,
 			batch,
 		})
 	} catch (e: any) {
 		console.error("❌ Unexpected error in batch login:", e)
+		
+		// Handle JSON parsing errors
+		if (e instanceof SyntaxError) {
+			return NextResponse.json({ 
+				error: "Invalid JSON format in request body" 
+			}, { status: 400 })
+		}
+		
 		return NextResponse.json({ 
 			error: "Server error. Please try again later.",
 			details: String(e?.message || e)

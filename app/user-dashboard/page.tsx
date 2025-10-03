@@ -5,14 +5,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Shield, Server, Key, Database, LogOut, Download, RefreshCw, CheckCircle, User } from "lucide-react"
+import { Shield, Server, Key, Database, LogOut, Download, RefreshCw, CheckCircle, User, MessageSquare } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import DeviceManager from "@/components/device-manager"
 import CredentialManager from "@/components/credential-manager"
 import BackupManager from "@/components/backup-manager"
+import CommunicationComingSoon from "@/components/communication/coming-soon-message"
+import { useLanguageStorage } from "@/lib/language-context"
+import UserSettingsPanel from "@/components/user/user-settings-panel"
 
 export default function UserDashboard() {
   const [user, setUser] = useState<any>(null)
+  const { language, setLanguage } = useLanguageStorage()
   const [stats, setStats] = useState({
     devices: 0,
     credentials: 0,
@@ -20,6 +25,28 @@ export default function UserDashboard() {
   })
   const [syncStatus, setSyncStatus] = useState("synced")
   const router = useRouter()
+
+  // Translations
+  const translations = {
+    en: {
+      title: "Personal Dashboard",
+      welcome: "Welcome to Your Personal Dashboard",
+      myDevices: "My Devices",
+      communication: "Communication",
+      backupSecurity: "Backup & Security",
+      credentials: "Credentials"
+    },
+    sw: {
+      title: "Jopo la Kibinafsi",
+      welcome: "Karibu kwenye Jopo lako la Kibinafsi",
+      myDevices: "Vifaa Vyangu",
+      communication: "Mawasiliano",
+      backupSecurity: "Nakala na Usalama",
+      credentials: "Hati za Usajili"
+    }
+  }
+
+  const t = translations[language]
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
@@ -153,6 +180,26 @@ export default function UserDashboard() {
                 </Badge>
               </div>
 
+              {/* Language Switcher - HESK Blue Style */}
+              <div className="flex items-center gap-0 bg-blue-50 border border-blue-300">
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setLanguage("en")}
+                  className={cn("h-8 px-3 text-xs font-normal border-0 rounded-none", language === "en" ? "bg-white border-r border-blue-300 text-blue-800" : "hover:bg-white/50 text-blue-700")}
+                >
+                  EN
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setLanguage("sw")}
+                  className={cn("h-8 px-3 text-xs font-normal border-0 rounded-none", language === "sw" ? "bg-white text-blue-800" : "hover:bg-white/50 text-blue-700")}
+                >
+                  SW
+                </Button>
+              </div>
+
               {/* User Menu */}
               <div className="flex items-center space-x-2 bg-blue-50 rounded-lg px-3 py-2">
                 <div className="text-right">
@@ -215,7 +262,7 @@ export default function UserDashboard() {
 
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-800">My Credentials</CardTitle>
+              <CardTitle className="text-sm font-medium text-purple-800">{t.credentials}</CardTitle>
               <Key className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
@@ -240,24 +287,36 @@ export default function UserDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="credentials" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200/50 p-1 h-12">
+          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm shadow-lg border border-gray-200/50 p-1 h-12">
             <TabsTrigger
               value="credentials"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium text-xs"
             >
-              My Passwords
+              Passwords
             </TabsTrigger>
             <TabsTrigger
               value="devices"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium text-xs"
             >
-              My Devices
+              Devices
+            </TabsTrigger>
+            <TabsTrigger
+              value="communication"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium text-xs"
+            >
+              Chat
             </TabsTrigger>
             <TabsTrigger
               value="backup"
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium text-xs"
             >
-              Backup & Security
+              Backup
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium text-xs"
+            >
+              Settings
             </TabsTrigger>
           </TabsList>
 
@@ -269,8 +328,16 @@ export default function UserDashboard() {
             <DeviceManager onStatsUpdate={loadStats} />
           </TabsContent>
 
+          <TabsContent value="communication" className="h-[600px] overflow-hidden">
+            <CommunicationComingSoon />
+          </TabsContent>
+
           <TabsContent value="backup">
             <BackupManager onStatsUpdate={loadStats} />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <UserSettingsPanel currentUser={user} />
           </TabsContent>
         </Tabs>
 

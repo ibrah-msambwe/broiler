@@ -18,6 +18,7 @@ import {
   CheckCircle,
 } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import DeviceManager from "@/components/device-manager"
 import CredentialManager from "@/components/credential-manager"
 import BackupManager from "@/components/backup-manager"
@@ -32,7 +33,40 @@ export default function Dashboard() {
   const [syncStatus, setSyncStatus] = useState("synced")
   const [cloudStatus, setCloudStatus] = useState("connected")
   const [onlineDataVerified, setOnlineDataVerified] = useState(false)
+  const [language, setLanguage] = useState<"en" | "sw">("en")
   const router = useRouter()
+
+  // Translations
+  const translations = {
+    en: {
+      title: "TARIQ System Dashboard",
+      welcome: "Welcome to System Management",
+      totalDevices: "Total Devices/Systems",
+      storedCredentials: "Stored Credentials",
+      lastBackup: "Last Backup",
+      never: "Never",
+      deviceManagement: "Device & System Management",
+      credentialVault: "Credential Vault",
+      backupStorage: "Backup & Storage",
+      logout: "Logout",
+      exportCredentials: "Export Credentials"
+    },
+    sw: {
+      title: "Jopo la Mfumo wa TARIQ",
+      welcome: "Karibu kwenye Usimamizi wa Mfumo",
+      totalDevices: "Jumla ya Vifaa/Mifumo",
+      storedCredentials: "Hati za Usajili Zilizohifadhiwa",
+      lastBackup: "Nakala ya Mwisho",
+      never: "Kamwe",
+      deviceManagement: "Usimamizi wa Vifaa na Mifumo",
+      credentialVault: "Chumba cha Hati za Usajili",
+      backupStorage: "Nakala na Uhifadhi",
+      logout: "Ondoka",
+      exportCredentials: "Hamisha Hati za Usajili"
+    }
+  }
+
+  const t = translations[language]
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
@@ -241,6 +275,26 @@ export default function Dashboard() {
                 </div>
               </div>
 
+              {/* Language Switcher - HESK Blue Style */}
+              <div className="flex items-center gap-0 bg-blue-50 border border-blue-300">
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setLanguage("en")}
+                  className={cn("h-8 px-3 text-xs font-normal border-0 rounded-none", language === "en" ? "bg-white border-r border-blue-300 text-blue-800" : "hover:bg-white/50 text-blue-700")}
+                >
+                  EN
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost"
+                  onClick={() => setLanguage("sw")}
+                  className={cn("h-8 px-3 text-xs font-normal border-0 rounded-none", language === "sw" ? "bg-white text-blue-800" : "hover:bg-white/50 text-blue-700")}
+                >
+                  SW
+                </Button>
+              </div>
+
               {/* User Menu */}
               <div className="flex items-center space-x-2 bg-gray-50 rounded-lg px-3 py-2">
                 <div className="text-right">
@@ -265,7 +319,7 @@ export default function Dashboard() {
                     className="border-red-200 text-red-600 hover:bg-red-50 h-8 text-xs"
                   >
                     <LogOut className="h-3 w-3 mr-1" />
-                    Logout
+                    {t.logout}
                   </Button>
                 </div>
               </div>
@@ -307,7 +361,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 shadow-lg hover:shadow-xl transition-all duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-800">Total Devices/Systems</CardTitle>
+              <CardTitle className="text-sm font-medium text-blue-800">{t.totalDevices}</CardTitle>
               <div className="p-2 bg-blue-600 rounded-lg">
                 <Server className="h-4 w-4 text-white" />
               </div>
@@ -320,7 +374,7 @@ export default function Dashboard() {
 
           <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 shadow-lg hover:shadow-xl transition-all duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-800">Stored Credentials</CardTitle>
+              <CardTitle className="text-sm font-medium text-purple-800">{t.storedCredentials}</CardTitle>
               <div className="p-2 bg-purple-600 rounded-lg">
                 <Key className="h-4 w-4 text-white" />
               </div>
@@ -333,14 +387,14 @@ export default function Dashboard() {
 
           <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 shadow-lg hover:shadow-xl transition-all duration-200">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-800">Last Backup</CardTitle>
+              <CardTitle className="text-sm font-medium text-green-800">{t.lastBackup}</CardTitle>
               <div className="p-2 bg-green-600 rounded-lg">
                 <Database className="h-4 w-4 text-white" />
               </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-900">
-                {stats.lastBackup ? new Date(stats.lastBackup).toLocaleDateString() : "Never"}
+                {stats.lastBackup ? new Date(stats.lastBackup).toLocaleDateString() : t.never}
               </div>
               <p className="text-xs text-green-600 mt-1">Supabase backup</p>
             </CardContent>
@@ -369,19 +423,19 @@ export default function Dashboard() {
               value="devices"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
             >
-              Device & System Management
+              {t.deviceManagement}
             </TabsTrigger>
             <TabsTrigger
               value="credentials"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
             >
-              Credential Vault
+              {t.credentialVault}
             </TabsTrigger>
             <TabsTrigger
               value="backup"
               className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-purple-600 data-[state=active]:text-white font-medium"
             >
-              Backup & Storage
+              {t.backupStorage}
             </TabsTrigger>
           </TabsList>
 

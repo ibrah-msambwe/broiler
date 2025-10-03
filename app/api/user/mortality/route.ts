@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
 			statistics: {
 				totalMortality,
 				currentBirdCount,
-				mortalityRate: parseFloat(mortalityRate),
+				mortalityRate: parseFloat(mortalityRate.toString()),
 				originalBirdCount: batch.bird_count || 0
 			},
 			dailyMortality,
@@ -65,15 +65,46 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-	const supabase = createServerSupabaseClient()
-	const body = await request.json()
-	const { batchId, deathCount, birdAge, cause, location, description, reportDate } = body || {}
-
-	if (!batchId || !deathCount || deathCount <= 0) {
-		return NextResponse.json({ error: "Valid batchId and deathCount required" }, { status: 400 })
-	}
-
 	try {
+		const supabase = createServerSupabaseClient()
+		const body = await request.json()
+		
+		// Validate request body exists
+		if (!body || typeof body !== 'object') {
+			return NextResponse.json({ 
+				error: "Invalid request format. Please provide valid JSON data." 
+			}, { status: 400 })
+		}
+
+		const { batchId, deathCount, birdAge, cause, location, description, reportDate } = body
+
+		// Validate required fields
+		if (!batchId) {
+			return NextResponse.json({ 
+				error: "batchId is required",
+				help: "Please provide a valid batch ID"
+			}, { status: 400 })
+		}
+
+		if (!deathCount || deathCount <= 0) {
+			return NextResponse.json({ 
+				error: "deathCount is required and must be greater than 0",
+				help: "Please provide a valid death count (positive number)"
+			}, { status: 400 })
+		}
+
+		// Validate field types
+		if (typeof deathCount !== 'number') {
+			return NextResponse.json({ 
+				error: "deathCount must be a number" 
+			}, { status: 400 })
+		}
+
+		if (birdAge !== undefined && typeof birdAge !== 'number') {
+			return NextResponse.json({ 
+				error: "birdAge must be a number" 
+			}, { status: 400 })
+		}
 		// Get current batch information
 		const { data: batch, error: batchError } = await supabase
 			.from("batches")
@@ -152,7 +183,19 @@ export async function POST(request: NextRequest) {
 			adminNotified: true
 		})
 	} catch (e: any) {
-		return NextResponse.json({ error: String(e?.message || e) }, { status: 500 })
+		console.error("Error in mortality POST:", e)
+		
+		// Handle JSON parsing errors
+		if (e instanceof SyntaxError) {
+			return NextResponse.json({ 
+				error: "Invalid JSON format in request body" 
+			}, { status: 400 })
+		}
+		
+		return NextResponse.json({ 
+			error: "Internal server error. Please try again later.",
+			details: String(e?.message || e)
+		}, { status: 500 })
 	}
 }
 

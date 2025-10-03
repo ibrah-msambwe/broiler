@@ -40,10 +40,16 @@ export async function POST(request: NextRequest) {
 			vaccinations: 0,
 			last_health_check: startDate || null,
 			notes: notes || null,
+			is_approved: false, // New users need admin approval
+			approved_at: null,
+			approved_by: null,
 		}
 		const { data, error } = await supabase.from("batches").insert(insert).select("*").maybeSingle()
 		if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-		return NextResponse.json({ batch: data })
+		return NextResponse.json({ 
+			batch: data,
+			message: "Registration successful! Please wait for admin approval before you can login."
+		})
 	} catch (e: any) {
 		return NextResponse.json({ error: String(e?.message || e) }, { status: 500 })
 	}

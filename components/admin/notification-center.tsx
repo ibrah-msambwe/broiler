@@ -134,13 +134,13 @@ export default function NotificationCenter() {
         variant="ghost"
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative"
+        className="relative h-8 w-8 sm:h-9 sm:w-9"
       >
-        <Bell className="h-5 w-5" />
+        <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
         {unreadCount > 0 && (
           <Badge 
             variant="destructive" 
-            className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+            className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 rounded-full p-0 text-xs flex items-center justify-center"
           >
             {unreadCount > 99 ? "99+" : unreadCount}
           </Badge>
@@ -149,7 +149,7 @@ export default function NotificationCenter() {
 
       {/* Notification Panel */}
       {isOpen && (
-        <div className="absolute right-0 top-12 w-96 bg-white border border-gray-200 rounded-lg shadow-xl z-50">
+        <div className="absolute right-0 top-12 w-80 sm:w-96 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-[80vh] overflow-hidden">
           <Card className="border-0 shadow-none">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">

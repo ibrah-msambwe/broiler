@@ -87,80 +87,46 @@ export default function FarmerLogin() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50">
-      {/* Header */}
-      <div className="bg-white/80 backdrop-blur-sm shadow-lg border-b border-gray-200/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center space-x-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/40 to-orange-400/40 rounded-full blur-xl transform translate-x-2 translate-y-2"></div>
-                <Image
-                  src="/images/chick-hero.png"
-                  alt="TARIQ BROiler Manager"
-                  width={40}
-                  height={40}
-                  className="relative z-10 drop-shadow-2xl filter brightness-110 contrast-110"
-                  style={{
-                    filter: "drop-shadow(0 8px 16px rgba(0,0,0,0.3)) drop-shadow(0 4px 8px rgba(255,165,0,0.4))",
-                  }}
-                />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-800 relative">
-                  <span
-                    className="relative z-10"
-                    style={{
-                      textShadow: "2px 2px 4px rgba(0,0,0,0.2)",
-                    }}
-                  >
-                    <span className="bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent font-black">
-                      TARIQ
-                    </span>{" "}
-                    BROILER MANAGEMENT
-                  </span>
-                </h1>
-                <p className="text-sm text-gray-500">{t.subtitle}</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-1 text-sm bg-white/80"
-              >
-                <option value="en">English</option>
-                <option value="sw">Swahili</option>
-              </select>
-              <Button variant="outline" onClick={() => router.push("/")} size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                {t.backToHome}
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Simple Header */}
+      <div className="pt-2 pb-1 px-3 sm:pt-4 sm:pb-2 sm:px-4">
+        <div className="flex items-center justify-end">
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="border border-gray-300 rounded px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs bg-white"
+            >
+              <option value="en">EN</option>
+              <option value="sw">SW</option>
+            </select>
+            <Button variant="outline" onClick={() => router.push("/")} size="sm" className="text-xs px-2 py-1 sm:px-3 sm:py-1.5">
+              <ArrowLeft className="h-3 w-3 mr-0.5 sm:mr-1" />
+              <span className="hidden xs:inline">{t.backToHome}</span>
+              <span className="xs:hidden">Back</span>
+            </Button>
           </div>
         </div>
       </div>
 
       {/* Login Form */}
-      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] px-4 py-12">
-        <div className="w-full max-w-md space-y-8">
+      <div className="flex items-center justify-center min-h-[calc(100vh-2rem)] px-3 sm:px-4 py-4 sm:py-6">
+        <div className="w-full max-w-xs xs:max-w-sm sm:max-w-md space-y-4">
           <div className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Users className="h-10 w-10 text-white" />
+            <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+              <Users className="h-6 w-6 text-white" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-2">{t.title}</h2>
-            <p className="text-gray-600">{t.subtitle}</p>
+            <h2 className="text-lg font-bold text-gray-800 mb-1">{t.title}</h2>
+            <p className="text-sm text-gray-600">{t.subtitle}</p>
           </div>
 
           <Card className="bg-white/90 backdrop-blur-sm shadow-xl border-0">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">{t.title}</CardTitle>
-              <CardDescription className="text-center">{t.subtitle}</CardDescription>
+            <CardHeader className="space-y-1 pb-3">
+              <CardTitle className="text-lg text-center">{t.title}</CardTitle>
+              <CardDescription className="text-center text-sm">{t.subtitle}</CardDescription>
             </CardHeader>
             <CardContent>
-
-
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="flex items-center space-x-2">
                     <Mail className="h-4 w-4" />
